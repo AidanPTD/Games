@@ -1,0 +1,56 @@
+﻿p {
+    font-family: paragraphFont;
+    font-size: 24px;
+}
+/*Game Options*/
+button {
+    font-family: buttonFont;
+}
+.gamebtn {
+    padding: 16px;
+    border: none;
+    cursor: pointer;
+    right: 6px;
+}
+.gamebtn:hover, .gamebtn:focus {
+    background-color: lightgrey;
+}
+.games {
+    position: relative;
+    display: inline-block;
+}
+.options {
+    background-color: transparent;
+    color: white;
+    padding: 16px;
+    border: none;
+    cursor: pointer;
+}
+.gametypes {
+    display: none;
+    position:absolute;
+    background-color: transparent;
+    min-width: 160px;
+    overflow: auto;
+    z-index: 1;
+}
+.gametypes a{
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.games a:hover {
+    background-color: #ddd;
+}
+.show {
+    display:block;
+}
+@font-face {
+    font-family: paragraphFont;
+    src: url(paragraphFont.woff);
+}
+@font-face {
+    font-family: buttonFont;
+    src: url(buttonFont.woff);
+}

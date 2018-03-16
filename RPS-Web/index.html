@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>RPS Games</title>
+    <script src="js/scripts.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css" />
+    <link rel="stylesheet" type="text/css" href="css/w3.css" />
+</head>
+
+<body class="w3-gray">
+    <div class="games">
+        <button onclick="gameDropdown()" class="w3-button w3-medium w3-black
+         w3-round-medium gamebtn">Games</button>
+        <div id="gameDropdown" class="gametypes">
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons5()">RPS-5</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons7()">RPS-7</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons9()">RPS-9</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons11()">RPS-11</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons15()">RPS-15</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons25()">RPS-25</button>
+            </p>
+            <p>
+                <button class="w3-button w3-medium w3-black w3-round-large" onclick="buttons101()">RPS-101 (beta)</button>
+            </p>
+        </div>
+    </div>
+    <table width="75%" border="0" align="center">
+        <tr>
+            <td colspan="4" style="text-align:center">
+                <p>Source Code on
+                    <a href="https://github.com/AidanPTD/RPS-Web">GitHub</a>
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center">
+                <img id="userImage" src="js/images/Rock.png" title="Rock" alt="Rock" width="150" height="150" />
+            </td>
+            <td style="text-align:center">
+                <p id="outcome">Outcome</p>
+            </td>
+            <td style="text-align:center">
+                <img id="aiImage" src="js/images/Scissors.png" title="Scissors" alt="Scissors" width="150" height="150" />
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center">
+                <p id="userPoints"></p>
+            </td>
+            <td style="text-align:center">
+                <button class="w3-button w3-medium w3-black w3-round-small" onclick="resetPoints()">
+                    Reset Points
+                </button>
+            </td>
+            <td style="text-align:center">
+                <p id="aiPoints"></p>
+            </td>
+        </tr>
+    </table>
+    <div id="buttons" align="center" class="w3-bar">
+    </div>
+</body>
+
+</html>
