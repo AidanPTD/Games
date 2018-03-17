@@ -10,6 +10,6 @@ p {
     font-family: paragraphFont;
     font-size: 32px;
 }
-.active {
-    
+.navBar {
+    position: fixed;
 }
