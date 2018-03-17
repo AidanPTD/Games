@@ -12,4 +12,5 @@ p {
 }
 .navBar {
     position: fixed;
+    overflow: hidden;
 }
