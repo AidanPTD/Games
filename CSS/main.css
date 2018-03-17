@@ -1,14 +1,14 @@
 @font-face {
     font-family: paragraphFont;
-    src: url('CSS/paragraphFont.woff');
+    src: url('paragraphFont.woff');
 }
 @font-face {
     font-family: buttonFont;
-    src: url('CSS/buttonFont.woff');
+    src: url('buttonFont.woff');
 }
 p {
     font-family: paragraphFont;
-    font-size: 32px;
+    font-size: 32;
 }
 .navBar {
     position: fixed;
