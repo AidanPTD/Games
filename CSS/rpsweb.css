@@ -20,7 +20,7 @@ button {
     display: inline-block;
 }
 .options {
-    background-color: transparent;
+    background-color: darkgrey;
     color: white;
     padding: 16px;
     border: none;

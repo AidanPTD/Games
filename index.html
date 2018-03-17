@@ -1,5 +1,21 @@
 <!DOCTYPE html>
 <html>
     <title>Games on the Web</title>
-    
+    <link rel="stylesheet" type="text/css" href="CSS/w3.css" />
+    <link rel="stylesheet" type="text/css" href="CSS/main.css" />
+    <script src="JS/scripts.js"></script>
+    <body class="w3-gray">
+        <div class="w3-sidebar w3-bar-block w3-black w3-animate-left" style="display:none;z-index:4" id="mySidebar">
+            <button class="w3-bar-item w3-button w3-large" onclick="sideBar_Close()">Close&times;</button>
+            <a href="RPS-Web/rpsweb.html" class="w3-bar-item w3-button">RPS-Web</a>
+            <a href="#" class="w3-bar-item w3-button">Unknown</a>
+            <a href="#" class="w3-bar-item w3-button">Unknown</a>
+        </div>
+        <div class="w3-overlay" onclick="sideBar_Close()" style="cursor:pointer;"></div>
+        <button class="w3-bar-item w3-button w3-xxlarge" onclick="sideBar_Open()">&#9776</button>
+            <div class="w3-container">
+                <h1>Title</h1>
+                <p></p>
+            </div>
+    </body>
 </html>
