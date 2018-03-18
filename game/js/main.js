@@ -1,6 +1,6 @@
 /// <reference path="../defs/p2.d.ts"/>
 /// <reference path="./phaser.min.js"/>
-/// <reference path="../defs/phaser.d.ts" />
+/// <reference path="../defs/phaser.d.ts"/>
 /// <reference path="../defs/pixi.d.ts"/>
 // =============================================================================
 // sprites
@@ -83,7 +83,8 @@ PlayState.update = function () {
 };
 PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.hero, this.platforms);
-}
+    this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
+};
 PlayState._handleInput = function () {
     if (this.keys.left.isDown) { // move hero left
         this.hero.move(-1);
@@ -113,7 +114,9 @@ PlayState._spawnCoin = function (coin) {
     sprite.anchor.set(0.5, 0.5);
     sprite.animations.add('rotate', [0,1,2,1], 6, true); // 6fps, looped
     sprite.animations.play('rotate');
-}
+    this.game.physics.enable(sprite);
+    sprite.body.allowGravity = false;
+};
 PlayState._spawnPlatform = function (platform) {
     let sprite = this.platforms.create(
         platform.x, platform.y, platform.image);
