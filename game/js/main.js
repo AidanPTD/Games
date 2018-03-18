@@ -26,16 +26,22 @@ Hero.prototype.move = function (direction) {
 };
 Hero.prototype.jump = function () {
     const JUMP_SPEED = 600;
-    
+
     let canJump = this.body.touching.down;
     if (canJump) {
         this.body.velocity.y = -JUMP_SPEED;
     }
     return canJump;
 };
+Hero.prototype.bounce = function() {
+    const BOUNCE_SPEED = 200;
+    this.body.velocity.y = -BOUNCE_SPEED;
+}
+
 //
 // spider sprite
 //
+
 function Spider(game, x, y) {
     Phaser.Sprite.call(this, game, x, y, 'spider');
 
@@ -56,6 +62,21 @@ Spider.SPEED = 100;
 // inherit from Phaser.Sprite
 Spider.prototype = Object.create(Phaser.Sprite.prototype);
 Spider.prototype.constructor = Spider;
+Spider.prototype.die = function() {
+    this.body.enable = false;
+
+    this.animations.play('die').onComplete.addOnce(function () {
+        this.kill();
+    }, this);
+}
+Spider.prototype.update = function () {
+    if (this.body.touching.right || this.body.blocked.right) {
+        this.body.velocity.x = -Spider.SPEED; // turn left
+    }
+    else if (this.body.touching.left || this.body.blocked.left) {
+        this.body.velocity.x = Spider.SPEED; // turn right
+    }
+}
 // =============================================================================
 // game states
 // =============================================================================
@@ -72,10 +93,11 @@ PlayState.init = function () {
     });
     this.keys.up.onDown.add(function () {
         let didJump = this.hero.jump();
-        if(didJump) {
+        if (didJump) {
             this.sfx.jump.play();
         }
     }, this);
+    this.coinPickupCount = 0;
 };
 
 PlayState.preload = function () {
@@ -93,12 +115,15 @@ PlayState.preload = function () {
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
     this.game.load.image('invisible-wall', 'images/invisible_wall.png');
     this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
+    this.game.load.audio('sfx:stomp', 'audio/stomp.wav');
+    this.game.load.image('icon:coin', 'images/coin_icon.png');
 };
 
 PlayState.create = function () {
     this.sfx = {
         jump: this.game.add.audio('sfx:jump'),
-        coin: this.game.add.audio('sfx:coin')
+        coin: this.game.add.audio('sfx:coin'),
+        stomp: this.game.add.audio('sfx:stomp')
     };
     this.game.add.image(0, 0, 'background');
     this._loadLevel(this.game.cache.getJSON('level:1'));
@@ -110,13 +135,27 @@ PlayState.update = function () {
 };
 PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.spiders, this.platforms);
+    this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
     this.game.physics.arcade.collide(this.hero, this.platforms);
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
+    this.game.physics.arcade.overlap(this.hero, this.spiders,
+        this._onHeroVsEnemy, null, this);
+};
+PlayState._onHeroVsEnemy = function (hero, enemy) {
+    if (hero.body.velocity.y > 0) {
+        hero.bounce();
+        enemy.die();
+    }
+    else {
+        this.sfx.stomp.play();
+        this.game.state.restart();
+    }
 };
 PlayState._onHeroVsCoin = function (hero, coin) {
     this.sfx.coin.play();
     coin.kill();
-}
+    this.coinPickupCount++;
+};
 PlayState._handleInput = function () {
     if (this.keys.left.isDown) { // move hero left
         this.hero.move(-1);
@@ -133,6 +172,8 @@ PlayState._loadLevel = function (data) {
     this.platforms = this.game.add.group();
     this.coins = this.add.group();
     this.spiders = this.game.add.group();
+    this.enemyWalls = this.game.add.group();
+    this.enemyWalls.visible = false;
     // spawn all platforms
     data.platforms.forEach(this._spawnPlatform, this);
     // spawn hero and enemies
@@ -145,7 +186,7 @@ PlayState._loadLevel = function (data) {
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
     sprite.anchor.set(0.5, 0.5);
-    sprite.animations.add('rotate', [0,1,2,1], 6, true); // 6fps, looped
+    sprite.animations.add('rotate', [0, 1, 2, 1], 6, true); // 6fps, looped
     sprite.animations.play('rotate');
     this.game.physics.enable(sprite);
     sprite.body.allowGravity = false;
@@ -156,8 +197,17 @@ PlayState._spawnPlatform = function (platform) {
     this.game.physics.enable(sprite);
     sprite.body.allowGravity = false;
     sprite.body.immovable = true;
+    this._spawnEnemyWall(platform.x, platform.y, 'left');
+    this._spawnEnemyWall(platform.x + sprite.width, platform.y, 'right');
 };
+PlayState._spawnEnemyWall = function (x, y, side) {
+    let sprite = this.enemyWalls.create(x, y, 'invisible-wall');
+    sprite.anchor.set(side == 'left' ? 1 : 0, 1);
 
+    this.game.physics.enable(sprite);
+    sprite.body.immovable = true;
+    sprite.body.allowGravity = false;
+}
 PlayState._spawnCharacters = function (data) {
     data.spiders.forEach(function (spider) {
         let sprite = new Spider(this.game, spider.x, spider.y);
