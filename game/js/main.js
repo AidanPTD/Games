@@ -33,6 +33,29 @@ Hero.prototype.jump = function () {
     }
     return canJump;
 };
+//
+// spider sprite
+//
+function Spider(game, x, y) {
+    Phaser.Sprite.call(this, game, x, y, 'spider');
+
+    // anchor
+    this.anchor.set(0.5);
+    //animation
+    this.animations.add('crawl', [0, 1, 2], 8, true);
+    this.animations.add('die', [0, 4, 0, 4, 0, 4, 3, 3, 3, 3, 3, 3], 12);
+    this.animations.play('crawl');
+
+    // physic properties
+    this.game.physics.enable(this);
+    this.body.collideWorldBounds = true;
+    this.body.velocity.x = Spider.SPEED;
+}
+Spider.SPEED = 100;
+
+// inherit from Phaser.Sprite
+Spider.prototype = Object.create(Phaser.Sprite.prototype);
+Spider.prototype.constructor = Spider;
 // =============================================================================
 // game states
 // =============================================================================
@@ -67,11 +90,15 @@ PlayState.preload = function () {
     this.game.load.image('hero', 'images/hero_stopped.png');
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
     this.game.load.spritesheet('coin', 'images/coin_animated.png', 22, 22);
+    this.game.load.audio('sfx:coin', 'audio/coin.wav');
+    this.game.load.image('invisible-wall', 'images/invisible_wall.png');
+    this.game.load.spritesheet('spider', 'images/spider.png', 42, 32);
 };
 
 PlayState.create = function () {
     this.sfx = {
-        jump: this.game.add.audio('sfx:jump')
+        jump: this.game.add.audio('sfx:jump'),
+        coin: this.game.add.audio('sfx:coin')
     };
     this.game.add.image(0, 0, 'background');
     this._loadLevel(this.game.cache.getJSON('level:1'));
@@ -82,9 +109,14 @@ PlayState.update = function () {
     this._handleInput();
 };
 PlayState._handleCollisions = function () {
+    this.game.physics.arcade.collide(this.spiders, this.platforms);
     this.game.physics.arcade.collide(this.hero, this.platforms);
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin, null, this);
 };
+PlayState._onHeroVsCoin = function (hero, coin) {
+    this.sfx.coin.play();
+    coin.kill();
+}
 PlayState._handleInput = function () {
     if (this.keys.left.isDown) { // move hero left
         this.hero.move(-1);
@@ -100,6 +132,7 @@ PlayState._handleInput = function () {
 PlayState._loadLevel = function (data) {
     this.platforms = this.game.add.group();
     this.coins = this.add.group();
+    this.spiders = this.game.add.group();
     // spawn all platforms
     data.platforms.forEach(this._spawnPlatform, this);
     // spawn hero and enemies
@@ -126,6 +159,10 @@ PlayState._spawnPlatform = function (platform) {
 };
 
 PlayState._spawnCharacters = function (data) {
+    data.spiders.forEach(function (spider) {
+        let sprite = new Spider(this.game, spider.x, spider.y);
+        this.spiders.add(sprite);
+    }, this);
     // spawn hero
     this.hero = new Hero(this.game, data.hero.x, data.hero.y);
     this.game.add.existing(this.hero);
