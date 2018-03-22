@@ -16,7 +16,6 @@ import { Math } from "phaser-ce";
 function Hero(game, x, y) {
     // call Phaser.Sprite constructor
     Phaser.Sprite.call(this, game, x, y, 'hero');
-    const FPS = 4;
     // anchor
     this.anchor.set(0.5, 0.5);
     // physics properties
@@ -123,11 +122,6 @@ Hero.prototype._getAnimationName = function () {
     }
 
     return name;
-};
-Hero.prototype._Invincibility = function() {
-    const counter = 20;
-    
-    this.sprite.tint = Math.random() * 0xFFFFFF;
 };
 //
 // Spider (enemy)
@@ -320,11 +314,9 @@ PlayState._handleCollisions = function () {
 PlayState._handleInput = function () {
     if (this.keys.speed.isDown) {
         SPEED = 400;
-        FPS = 12;
     }
     else {
         SPEED = 200;
-        FPS = 8;
     }
     if (this.keys.left.isDown) { // move hero left
         this.hero.move(-1);
@@ -421,8 +413,7 @@ PlayState._loadLevel = function (data) {
     this.coins = this.game.add.group();
     this.spiders = this.game.add.group();
     this.enemyWalls = this.game.add.group();
-    this.enemyWalls.visible = true;
-    this.itemBoxes = this.game.add.group();
+    this.enemyWalls.visible = false;
     // spawn hero and enemies
     this._spawnCharacters({ hero: data.hero, spiders: data.spiders });
 
@@ -483,7 +474,7 @@ PlayState._spawnEnemyWall = function (x, y, side) {
     sprite.body.immovable = true;
     sprite.body.allowGravity = false;
 };
-PlayState._spawnItemBoxes = function (itembox) {
+/*PlayState._spawnItemBoxes = function (itembox) {
     let sprite = this.itemBoxes.create(
         itembox.x, itembox.y, 'itembox');
     sprite.anchor.set(0.5, 0.5);
@@ -495,7 +486,7 @@ PlayState._spawnItemBoxes = function (itembox) {
     sprite.animations.add('active', [0], 6);
     sprite.animations.add('inactive', [1], 6);
     sprite.animations.play('active');
-};
+};*/
 PlayState._spawnCoin = function (coin) {
     let sprite = this.coins.create(coin.x, coin.y, 'coin');
     sprite.anchor.set(0.5, 0.5);
@@ -592,9 +583,8 @@ PlayState._createHud = function () {
 // =============================================================================
 // entry point
 // =============================================================================
-
 window.onload = function () {
-    let game = new Phaser.Game(960, 600, Phaser.AUTO, 'game');
+    let game = new Phaser.Game(800, 600, Phaser.AUTO, 'game');
     game.state.add('play', PlayState);
     game.state.add('loading', LoadingState);
     game.state.start('loading');
