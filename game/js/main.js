@@ -263,8 +263,6 @@ PlayState.create = function () {
     // create level entities and decoration
     var bg = this.game.add.image(0, 0, 'background');
     this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
-    bg.fixedToCamera = true;
-    this.game.camera.follow(this.hero, Phaser.Camera.FOLLOW_PLATFORMER);
     // create UI score boards
     this._createHud();
 };
@@ -451,7 +449,7 @@ PlayState._spawnCharacters = function (data) {
     this.game.add.existing(this.hero);
 };
 
-PlayState._spawnPlatform = function (platform) {
+/*PlayState._spawnPlatform = function (platform) {
     let sprite = this.platforms.create(
         platform.x, platform.y, platform.image);
 
@@ -463,7 +461,7 @@ PlayState._spawnPlatform = function (platform) {
     // spawn invisible walls at each side, only detectable by enemies
     this._spawnEnemyWall(platform.x, platform.y, 'left');
     this._spawnEnemyWall(platform.x + sprite.width, platform.y, 'right');
-};
+};*/
 
 PlayState._spawnEnemyWall = function (x, y, side) {
     let sprite = this.enemyWalls.create(x, y, 'invisible-wall');
