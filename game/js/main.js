@@ -2,6 +2,9 @@
 /// <reference path="./phaser.min.js"/>
 /// <reference path="../defs/phaser.d.ts"/>
 /// <reference path="../defs/pixi.d.ts"/>
+
+import { Math } from "phaser-ce";
+
 // =============================================================================
 // Sprites
 // =============================================================================
@@ -68,7 +71,10 @@ Hero.prototype.bounce = function () {
     const BOUNCE_SPEED = 300;
     this.body.velocity.y = -BOUNCE_SPEED;
 };
-
+Hero.prototype._bouncePad = function () {
+    const BOUNCE_PAD_SPEED = 500;
+    this.body.velocity.y = -BOUNCE_PAD_SPEED;
+};
 Hero.prototype.update = function () {
     // update sprite animation, if it needs changing
     let animationName = this._getAnimationName();
@@ -118,7 +124,11 @@ Hero.prototype._getAnimationName = function () {
 
     return name;
 };
-
+Hero.prototype._Invincibility = function() {
+    const counter = 20;
+    
+    this.sprite.tint = Math.random() * 0xFFFFFF;
+};
 //
 // Spider (enemy)
 //
