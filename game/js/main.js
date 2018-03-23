@@ -218,7 +218,7 @@ LoadingState.preload = function () {
 
 LoadingState.create = function () {
     this.game.state.start('play', true, false, { level: 0 });
-    this.world.setBounds(0, 0, 5000, 1000);
+    this.world.setBounds(0, 0, 10000, 1000);
     this.game.camera.follow(this.hero, Phaser.Camera.FOLLOW_PLATFORMER);
 };
 
