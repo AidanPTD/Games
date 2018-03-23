@@ -3,7 +3,7 @@
 /// <reference path="../defs/phaser.d.ts"/>
 /// <reference path="../defs/pixi.d.ts"/>
 
-import { Math } from "phaser-ce";
+import { Camera } from "phaser-ce";
 
 // =============================================================================
 // Sprites
@@ -30,7 +30,7 @@ function Hero(game, x, y) {
     // starting animation
     this.animations.play('stop');
     const SPEED = 200;
-}
+};
 
 // inherit from Phaser.Sprite
 Hero.prototype = Object.create(Phaser.Sprite.prototype);
@@ -141,7 +141,7 @@ function Spider(game, x, y) {
     this.game.physics.enable(this);
     this.body.collideWorldBounds = true;
     this.body.velocity.x = Spider.SPEED;
-}
+};
 
 Spider.SPEED = 100;
 
@@ -182,7 +182,6 @@ LoadingState.preload = function () {
     this.game.load.json('level:0', 'data/level00.json');
     this.game.load.json('level:1', 'data/level01.json');
     this.game.load.json('level:2', 'data/level02.json');
-
     this.game.load.image('font:numbers', 'images/numbers.png');
 
     this.game.load.image('icon:coin', 'images/coin_icon.png');
