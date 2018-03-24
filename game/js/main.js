@@ -3,7 +3,7 @@
 /// <reference path="../defs/phaser.d.ts"/>
 /// <reference path="../defs/pixi.d.ts"/>
 
-import { Camera } from "phaser-ce";
+import {Math} from "phaser-ce";
 
 // =============================================================================
 // Sprites
@@ -217,7 +217,9 @@ LoadingState.preload = function () {
 
 LoadingState.create = function () {
     this.game.state.start('play', true, false, { level: 0 });
-    this.world.setBounds(0, 0, 10000, 1000);
+    /* this.world.setBounds(0, 0, 10000, 1000);
+    this.game.camera.follow(this.hero, Phaser.Camera.FOLLOW_PLATFORMER); */
+    this.game.world.setBounds(0, 0, 1000, 1000);
     this.game.camera.follow(this.hero, Phaser.Camera.FOLLOW_PLATFORMER);
 };
 
