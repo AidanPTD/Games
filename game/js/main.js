@@ -394,8 +394,8 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.hero, this.tiles);
     this.game.physics.arcade.collide(this.hero, this.platforms);
 
-    this.game.physics.arcade.collide(this.hero, this.itemboxes/*, this._onHeroVsItemBox, null, this*/);
-    this.game.physics.arcade.collide(this.hero, this.coinboxes, this._onHeroVsCoinBox, null, this);
+    this.game.physics.arcade.collide(this.hero, this.itemboxes, this._onHeroVsItemBox, null, this);
+    //this.game.physics.arcade.collide(this.hero, this.coinboxes, this._onHeroVsCoinBox, null, this);
     // hero vs coins (pick up)
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
         null, this);
@@ -909,7 +909,6 @@ PlayState._createHud = function () {
     this.heart2 = this.game.add.sprite(this.heart1.x + this.heart1.width, this.heart1.y, 'hearts');
     this.heart3 = this.game.add.sprite(this.heart2.x + this.heart2.width, this.heart2.y, 'hearts');
 
-    //this.debugText = this.game.debug.text("Testing!", 0, 800);
     this.hud = this.game.add.group();
     this.hud.add(coinIcon);
     this.hud.add(coinScoreImg);
