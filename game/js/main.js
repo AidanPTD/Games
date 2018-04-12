@@ -21,7 +21,7 @@ function Hero(game, x, y) {
     // physics properties
     this.game.physics.enable(this);
     this.body.collideWorldBounds = true;
-
+ 
     // animations
     this.animations.add('stop', [0]);
     this.animations.add('run', [1, 2], 8, true); // 8fps looped
@@ -498,7 +498,7 @@ PlayState._onHeroVsLife = function (hero, life) {
     life.kill();
     LIVES++;
     SCORE += 1000;
-}
+};
 PlayState._onHeroVsItemBox = function (hero, itemboxes) {
     if (itemboxes.frame == 0) {
         var itemNumber = this.game.rnd.integerInRange(0, 5);
@@ -736,7 +736,7 @@ PlayState._spawnEnemyWall = function (x, y, side) {
     sprite.body.allowGravity = false;
 };
 PlayState._spawnItemBoxes = function (itembox) {
-    let sprite = this.coinboxes.create(
+    let sprite = this.itemboxes.create(
         itembox.x, itembox.y, 'itembox');
     sprite.anchor.set(0.5, 0.5);
     this.game.physics.enable(sprite);
