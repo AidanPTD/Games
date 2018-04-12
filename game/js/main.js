@@ -8,6 +8,7 @@
 // Sprites
 // =============================================================================
 
+
 //
 // Hero
 //
@@ -51,26 +52,26 @@ Hero.prototype.move = function (direction) {
 
 Hero.prototype.jump = function () {
     const JUMP_SPEED = 400;
-    const DOUBLEJUMP_SPEED = 400;
+    const DOUBLEJUMP_SPEED = 800;
     let canJump = this.body.touching.down && this.alive && !this.isFrozen;
 
     if ((canJump || this.isBoosting) || this.onWall) {
         this.body.velocity.y = -JUMP_SPEED;
         this.isBoosting = true;
-        if (this.onWall) {
+        /* if (this.onWall) {
             if (this.keys.up.isDown && !canJump) {
                 if (this.keys.right.isDown && this.body.touching.right) {
-                    this.move(-1);
-                    this.body.velocity.y = -JUMP_SPEED;
-                    console.log("Jumped off wall");
-                }
-                if (this.keys.left.isDown && this.body.touching.left) {
                     this.move(1);
                     this.body.velocity.y = -JUMP_SPEED;
                     console.log("Jumped off wall");
                 }
+                if (this.keys.left.isDown && this.body.touching.left) {
+                    this.move(-1);
+                    this.body.velocity.y = -JUMP_SPEED;
+                    console.log("Jumped off wall");
+                }
             }
-        }
+        } */
         this.canDoubleJump = true;
         this.canJump = false;
         this.onWall = false;
@@ -85,16 +86,7 @@ Hero.prototype.jump = function () {
 
     return canJump;
 };
-Hero.prototype.setDefaultValues = function () {
-    this.onWall = false;
-    this._setHeroXVelocity(true);
-}
-Hero.prototype._setHeroXVelocity = function (defaultDirection) {
-    this.body.velocity.x = this.SPEED * this.scale.x * (defaultDirection ? 1 : -1);
-};
-Hero.prototype.setDefaultValues = function () {
-    this.body.gravity.y = this.game.physics.arcade.gravity.y;
-};
+
 Hero.prototype.stopJumpBoost = function () {
     this.isBoosting = false;
 };
@@ -225,6 +217,7 @@ LoadingState.preload = function () {
     this.game.load.json('level:0', 'data/level00.json');
     this.game.load.json('level:1', 'data/level01.json');
     this.game.load.json('level:2', 'data/level02.json');
+    this.game.load.tilemap('level:01', 'data/level1.json', null, Phaser.Tilemap.TILED_JSON);
     this.game.load.image('font:numbers', 'images/numbers.png');
 
     this.game.load.image('icon:coin', 'images/coin_icon.png');
@@ -241,11 +234,12 @@ LoadingState.preload = function () {
     this.game.load.image('silver-key', 'images/key_silver.png');
     this.game.load.image('gold-key', 'images/key_gold.png');
     this.game.load.image('brick', 'images/brick.png');
-
+    this.game.load.image('tiles', 'images/tiles.png');
     this.game.load.image('star', 'images/star.png');
     this.game.load.image('life', 'images/lifeitem.png');
-    this.game.load.spritesheet('itembox', 'images/itembox.png', 38, 38);
-    this.game.load.spritesheet('coinbox', 'images/coinbox.png', 38, 38);
+    this.game.load.image('brick', 'images/brick.png');
+    this.game.load.spritesheet('itembox', 'images/itembox.png', 42, 42);
+    this.game.load.spritesheet('coinbox', 'images/coinbox.png', 42, 42);
     this.game.load.spritesheet('hearts', 'images/hearts.png', 45, 38);
     this.game.load.spritesheet('decoration', 'images/decor.png', 42, 42);
     this.game.load.spritesheet('hero', 'images/hero.png', 36, 42);
@@ -256,7 +250,7 @@ LoadingState.preload = function () {
     this.game.load.spritesheet('icon:key_silver', 'images/key_icon_silver.png', 34, 30);
     this.game.load.spritesheet('icon:key_gold', 'images/key_icon_gold.png', 34, 30);
     this.game.load.spritesheet('spring', 'images/spring.png', 45, 32);
-    this.game.load.spritesheet('greentiles', 'images/greentiles.png', 42, 42);
+    this.game.load.spritesheet('tiles', 'images/tiles.png', 42, 42);
 
     this.game.load.audio('sfx:jump', 'audio/jump.wav');
     this.game.load.audio('sfx:coin', 'audio/coin.wav');
@@ -280,8 +274,11 @@ LoadingState.create = function () {
 PlayState = {};
 
 const LEVEL_COUNT = 3;
+const LEVEL = 1;
 var LIVES = 3;
-
+var COINS = 0;
+var SCORE = 0;
+const NUMBERS_STR = '0123456789X ';
 PlayState.init = function (data) {
     this.keys = this.game.input.keyboard.addKeys({
         left: Phaser.KeyCode.LEFT,
@@ -290,7 +287,6 @@ PlayState.init = function (data) {
         speed: Phaser.KeyCode.SHIFT,
         wallJump: Phaser.KeyCode.SPACEBAR
     });
-    this.coinPickupCount = 0;
     this.hasCopperKey = false;
     this.hasSilverKey = false;
     this.hasGoldKey = false;
@@ -299,7 +295,6 @@ PlayState.init = function (data) {
     this.canDoubleJump = false;
     this.onWall = false;
     this.Invincible = false;
-    this.gameTimer = this.game.time.create(false);
 };
 
 PlayState.create = function () {
@@ -317,12 +312,19 @@ PlayState.create = function () {
     };
     this.bgm = this.game.add.audio('bgm');
     //this.bgm.loopFull();
+    //this.map = this.game.add.tilemap('level:01');
+    //this.map.addTilesetImage('tiles', 'tiles');
 
+    /*this.groundLayer = map.createLayer('GroundLayer');
+    this.groundLayer.resizeWorld();
+
+    this.backgroundLayer = map.createLayer('BackgroundLayer');
+    this.backgroundLayer.resizeWorld();*/
     // create level entities and decoration
     var bg = this.game.add.image(0, 0, 'background');
     bg.fixedToCamera = true;
     this._loadLevel(this.game.cache.getJSON(`level:${this.level}`));
-    // create UI score boards
+    // create the HUD for the game
     this._createHud();
 };
 
@@ -330,12 +332,17 @@ PlayState.update = function () {
     this._handleCollisions();
     this._handleInput();
     // update scoreboards
-    this.coinFont.text = `x${this.coinPickupCount}`;
+    this.coinFont.text = `x${COINS}`;
     this.lifeFont.text = `x${LIVES}`;
     this.copperKeyIcon.frame = this.hasCopperKey ? 1 : 0;
     this.silverKeyIcon.frame = this.hasSilverKey ? 1 : 0;
+    if (COINS > 99) {
+        LIVES += 1;
+        COINS = 0;
+    };
     this.goldKeyIcon.frame = this.hasGoldKey ? 1 : 0;
     this.game.camera.follow(this.hero, Phaser.Camera.FOLLOW_PLATFORMER);
+    this._updateScoreText();
 };
 
 PlayState.shutdown = function () {
@@ -384,29 +391,10 @@ PlayState._handleCollisions = function () {
     this.game.physics.arcade.collide(this.spiders, this.platforms);
     this.game.physics.arcade.collide(this.spiders, this.enemyWalls);
     this.game.physics.arcade.collide(this.spiders, this.springs);
-    this.game.physics.arcade.collide(this.hero, this.greentiles);
-    this.game.physics.arcade.collide(this.hero, this.platforms, function (hero, platforms) {
-        if (hero.body.touching.down) {
-            this.canJump = true;
-            this.onWall = false;
-        }
-        if (hero.body.touching.right && hero.body.touching.down) {
-            hero.scale.x = -1;
-        }
-        else if (hero.body.touching.right && !hero.body.touching.down) {
-            this.onWall = true;
+    this.game.physics.arcade.collide(this.hero, this.tiles);
+    this.game.physics.arcade.collide(this.hero, this.platforms);
 
-        }
-        else if (hero.body.touching.left && hero.body.touching.down) {
-            hero.scale.x = 1;
-        }
-        else if (hero.body.touching.left && !hero.body.touching.down) {
-            this.onWall = true;
-        }
-        hero.move(hero.scale.x);
-    }, null, this);
-
-    this.game.physics.arcade.collide(this.hero, this.itemboxes, this._onHeroVsItemBox, null, this);
+    this.game.physics.arcade.collide(this.hero, this.itemboxes/*, this._onHeroVsItemBox, null, this*/);
     this.game.physics.arcade.collide(this.hero, this.coinboxes, this._onHeroVsCoinBox, null, this);
     // hero vs coins (pick up)
     this.game.physics.arcade.overlap(this.hero, this.coins, this._onHeroVsCoin,
@@ -419,7 +407,7 @@ PlayState._handleCollisions = function () {
         null, this);
     this.game.physics.arcade.overlap(this.hero, this.stars, this._onHeroVsStar, null, this);
     this.game.physics.arcade.collide(this.stars, this.platforms);
-    this.game.physics.arcade.collide(this.stars, this.greentiles);
+    this.game.physics.arcade.collide(this.stars, this.tiles);
     this.game.physics.arcade.collide(this.stars, this.itemboxes);
     this.game.physics.arcade.collide(this.stars, this.coinboxes);
     this.game.physics.arcade.collide(this.stars, this.springs);
@@ -465,18 +453,22 @@ PlayState._handleInput = function () {
     }
 };
 PlayState._onHeroVsStar = function (hero, star) {
-    star.kill();
+    var starTimer = this.game.time.create(false);
     var timeLimit = 5;
     timeLimit *= 10;
-    if (timeLimit > 0) {
-        this.gameTimer.loop(100, function () {
+    starTimer.start(100, function () {
+        if (timeLimit > 0) {
             hero.tint = Math.random() * 0xffffff;
             timeLimit -= 1;
-        });
-    }
-    else {
-        hero.tint = 0xffffff;
-    };
+            console.log(timeLimit);
+        } else {
+            hero.tint = 0xffffff;
+            starTimer.destroy();
+        }
+    });
+    SCORE += 1000;
+    this._createScoreText(1000, star.x, star.y - (star.height * 1));
+    star.kill();
 };
 PlayState._onHeroVsCopperKey = function (hero, copperkey) {
     this.sfx.key.play();
@@ -495,17 +487,21 @@ PlayState._onHeroVsGoldKey = function (hero, goldkey) {
 };
 PlayState._onHeroVsCoin = function (hero, coin) {
     this.sfx.coin.play();
+    this._createScoreText(100, coin.x, coin.y - (coin.height * 1));
     coin.kill();
-    this.coinPickupCount++;
+    COINS++;
+    SCORE += 100;
 };
 PlayState._onHeroVsLife = function (hero, life) {
     this.sfx.life.play();
+    this._createScoreText(1000, life.x, life.y - (life.height * 1));
     life.kill();
     LIVES++;
+    SCORE += 1000;
 }
 PlayState._onHeroVsItemBox = function (hero, itemboxes) {
-    var itemNumber = this.game.rnd.integerInRange(0, 5);
-    /*while (itemboxes.frame == 0) {
+    if (itemboxes.frame == 0) {
+        var itemNumber = this.game.rnd.integerInRange(0, 5);
         if (itemNumber == 0) {
             console.log("Life appeared");
             this._spawnStar(itemboxes.x, itemboxes.y - (itemboxes.height * 3));
@@ -526,30 +522,46 @@ PlayState._onHeroVsItemBox = function (hero, itemboxes) {
             console.log("Life appeared");
             this._spawnStar(itemboxes.x, itemboxes.y - (itemboxes.height * 3));
         };
-    }*/
+    }
+    //this._spawnStar(itemboxes.x, itemboxes.y - (itemboxes.height * 3));
+    itemboxes.frame = 1;
     console.log("Item appeared");
 };
-var coinlimit = Math.floor(Math.random() * 10) + 2;
+PlayState._createScoreText = function (scoreValue, x, y) {
+    let scoreFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
+    let scoreText = this.game.make.image(x, y, scoreFont);
+    scoreText.text = `+ ${scoreValue}`;
+    this.game.time.events.add(2000, function () { 
+        this.game.add.tween(scoreText).to(
+            { y: scoreText.y - 10}, 1500, 
+            Phaser.Easing.Linear.None, true); 
+        this.game.add.tween(scoreText).to({ alpha: 0 }, 1500, Phaser.Easing.Linear.None, true); 
+    }, this);
+};
 PlayState._onHeroVsCoinBox = function (hero, coinbox) {
-
-    this.gameTimer.loop(100, function () {
+    var coinTimer = this.game.time.create(false)
+    var coinlimit = Math.floor(Math.random() * 10) + 2;
+    coinTimer.loop(100, function () {
         if (coinlimit >= 0 && coinbox.frame == 0) {
-            this.coinPickupCount++;
+            COINS++;
+            SCORE += 1000;
             coinlimit--;
             this.sfx.coin.play();
             if (coinlimit == 0) {
-                coinlimit = Math.floor(Math.random() * 10) + 2;
                 coinbox.frame = 1;
+                console.log("Coin timer destroyed");
+                coinTimer.destroy();
+                this._spawnStar(coinbox.x, coinbox.y - (coinbox.height * 2));
             }
         }
     }, this);
-    this.gameTimer.start();
-
+    coinTimer.start();
 };
 PlayState._onHeroVsSprings = function (hero, springs) {
     hero.body.velocity.y = -400 * 2;
-    this._spawnStar(springs.x, springs.y - (springs.height * 10));
+    //this._spawnStar(springs.x, springs.y - (springs.height * 10));
     springs.animations.play('boost');
+    //this._onHeroVsStar;
 };
 PlayState._onHeroVsEnemy = function (hero, enemy) {
     // the hero can kill enemies when is falling (after a jump, or a fall)
@@ -586,7 +598,35 @@ PlayState._onHeroVsEnemy = function (hero, enemy) {
         enemy.body.touching = enemy.body.wasTouching;
     }
 };
-
+PlayState._updateScoreText = function () {
+    if (SCORE < 100 & SCORE >= 10) {
+        this.scoreFont.text = `0000000${SCORE}`;
+    }
+    else if (SCORE < 1000 & SCORE >= 100) {
+        this.scoreFont.text = `000000${SCORE}`;
+    }
+    else if (SCORE < 10000 & SCORE >= 1000) {
+        this.scoreFont.text = `00000${SCORE}`;
+    }
+    else if (SCORE < 100000 & SCORE >= 10000) {
+        this.scoreFont.text = `0000${SCORE}`;
+    }
+    else if (SCORE < 1000000 & SCORE >= 100000) {
+        this.scoreFont.text = `000${SCORE}`;
+    }
+    else if (SCORE < 10000000 & SCORE >= 1000000) {
+        this.scoreFont.text = `00${SCORE}`;
+    }
+    else if (SCORE < 100000000 & SCORE >= 10000000) {
+        this.scoreFont.text = `0${SCORE}`;
+    }
+    else if (SCORE < 1000000000 & SCORE >= 100000000) {
+        this.scoreFont.text = `${SCORE}`;
+    }
+    else if (SCORE >= 999999999) {
+        this.scoreFont.text = `999999999`;
+    }
+};
 PlayState._onHeroVsDoor = function (hero, door) {
     // 'open' the door by changing its graphic and playing a sfx
     door.frame = 1;
@@ -613,13 +653,14 @@ PlayState._loadLevel = function (data) {
     this.bgDecoration = this.game.add.group();
     this.platforms = this.game.add.group();
     this.coins = this.game.add.group();
+    this.bricks = this.game.add.group();
     this.spiders = this.game.add.group();
     this.enemyWalls = this.game.add.group();
     this.itemboxes = this.game.add.group();
     this.coinboxes = this.game.add.group();
     this.oneups = this.game.add.group();
     this.springs = this.game.add.group();
-    this.greentiles = this.game.add.group();
+    this.tiles = this.game.add.group();
     this.stars = this.game.add.group();
     this.enemyWalls.visible = true;
     // spawn hero and enemies
@@ -630,8 +671,15 @@ PlayState._loadLevel = function (data) {
         this.bgDecoration.add(
             this.game.add.image(deco.x, deco.y, 'decoration', deco.frame));
     }, this);
-    data.greentiles.forEach(function (greentile) {
-        let sprite = this.greentiles.create(greentile.x, greentile.y, 'greentiles', greentile.frame);
+    data.bricks.forEach(function (brick) {
+        let sprite = this.tiles.create(brick.x, brick.y, 'brick');
+        this.game.physics.enable(sprite);
+        sprite.body.allowGravity = false;
+        sprite.body.immovable = true;
+
+    }, this);
+    data.tiles.forEach(function (greentile) {
+        let sprite = this.tiles.create(greentile.x, greentile.y, 'tiles', greentile.frame);
         this.game.physics.enable(sprite);
         sprite.body.allowGravity = false;
         sprite.body.immovable = true;
@@ -726,18 +774,20 @@ PlayState._spawnCoinItem = function (x, y, coin) {
     // animations
     sprite.animations.add('rotate', [0, 1, 2, 1], 6, true); // 6fps, looped
     sprite.animations.play('rotate');
-}
+};
 PlayState._spawnStar = function (x, y, star) {
     let sprite = this.stars.create(x, y, 'star');
     sprite.anchor.set(0.5, 0.5);
 
     // physics (so we can detect overlap with the hero)
-    this.game.physics.enable(sprite);
+    this.game.physics.enable(sprite, Phaser.Physics.ARCADE);
     sprite.body.allowGravity = true;
     sprite.body.immovable = true;
     sprite.body.collideWorldBounds = true;
-    sprite.body.bounce.y = 100;
-}
+    sprite.body.bounce.set(1);
+    //sprite.body.velocity.y = 200;
+    sprite.body.velocity.x = 100;
+};
 PlayState._spawnLifeItem = function (x, y, life) {
     let sprite = this.oneups.create(x, y, 'life');
     sprite.anchor.set(0.5, 0.5);
@@ -831,10 +881,10 @@ PlayState._spawnDoor = function (x, y) {
 };
 
 PlayState._createHud = function () {
-    const NUMBERS_STR = '0123456789X ';
     this.coinFont = this.game.add.retroFont('font:numbers', 20, 26,
         NUMBERS_STR, 6);
     this.lifeFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
+    this.scoreFont = this.game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
 
     this.copperKeyIcon = this.game.make.image(0, 19, 'icon:key_copper');
     this.copperKeyIcon.anchor.set(0, 0.5);
@@ -854,24 +904,25 @@ PlayState._createHud = function () {
     let lifeCountImg = this.game.make.image(lifeIcon.x + lifeIcon.width,
         lifeIcon.height * 2.5, this.lifeFont);
     lifeCountImg.anchor.set(0, 0.5);
-
+    let scoreCount = this.game.make.image(780, 0, this.scoreFont);
     this.heart1 = this.game.add.sprite(0, lifeIcon.y + 40, 'hearts');
     this.heart2 = this.game.add.sprite(this.heart1.x + this.heart1.width, this.heart1.y, 'hearts');
     this.heart3 = this.game.add.sprite(this.heart2.x + this.heart2.width, this.heart2.y, 'hearts');
 
-    this.debugText = this.game.debug.text("Testing!", 0, 800);
+    //this.debugText = this.game.debug.text("Testing!", 0, 800);
     this.hud = this.game.add.group();
     this.hud.add(coinIcon);
     this.hud.add(coinScoreImg);
     this.hud.add(lifeIcon);
     this.hud.add(lifeCountImg);
+    this.hud.add(scoreCount);
     this.hud.add(this.copperKeyIcon);
     this.hud.add(this.silverKeyIcon);
     this.hud.add(this.goldKeyIcon);
     this.hud.add(this.heart1);
     this.hud.add(this.heart2);
     this.hud.add(this.heart3);
-    this.hud.add(this.debugText);
+    //this.hud.add(this.debugText);
     this.hud.position.set(10, 10);
     this.hud.fixedToCamera = true;
 };
