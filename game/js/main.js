@@ -676,14 +676,12 @@ PlayState._loadLevel = function (data) {
         this.game.physics.enable(sprite);
         sprite.body.allowGravity = false;
         sprite.body.immovable = true;
-
     }, this);
     data.tiles.forEach(function (greentile) {
         let sprite = this.tiles.create(greentile.x, greentile.y, 'tiles', greentile.frame);
         this.game.physics.enable(sprite);
         sprite.body.allowGravity = false;
         sprite.body.immovable = true;
-
     }, this);
     // spawn platforms
     data.platforms.forEach(this._spawnPlatform, this);
